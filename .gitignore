@@ -1,0 +1,19 @@
+# Arquivos e pastas do PyInstaller
+/build/
+/dist/
+*.spec
+
+# Ambiente Virtual
+/.venv/
+
+# Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos específicos de SO
+.DS_Store
+
+# Arquivos de log
+*.log
