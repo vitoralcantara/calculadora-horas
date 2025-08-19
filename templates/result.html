@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado do Cálculo</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 2em auto; padding: 1em; line-height: 1.6; }
+        .result { font-size: 1.5em; font-weight: bold; color: #28a745; }
+        .error { font-size: 1.2em; font-weight: bold; color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>Resultado</h1>
+    {% if erro %}
+        <p class="error">{{ erro }}</p>
+    {% else %}
+        <p>Desde o início do mês até hoje, tivemos <span class="result">{{ horas }}</span> horas úteis (considerando feriados de {{ localidade }}).</p>
+    {% endif %}
+    <a href="/">Calcular novamente</a>
+</body>
+</html>

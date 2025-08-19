@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Horas Úteis</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 2em auto; padding: 1em; line-height: 1.6; }
+        input { padding: 8px; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Calculadora de Horas Úteis</h1>
+    <p>Calcule o total de horas úteis desde o início do mês atual até hoje.</p>
+    
+    <form action="/calculate" method="post">
+        <label for="pais">Código do País (ex: BR, US, PT):</label>
+        <input type="text" id="pais" name="pais" required>
+
+        <label for="estado">Sigla do Estado (Opcional, ex: PE, SP):</label>
+        <input type="text" id="estado" name="estado">
+
+        <button type="submit">Calcular</button>
+    </form>
+</body>
+</html>
