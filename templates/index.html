@@ -15,13 +15,74 @@
     <p>Calcule o total de horas úteis desde o início do mês atual até hoje.</p>
     
     <form action="/calculate" method="post">
-        <label for="pais">Código do País (ex: BR, US, PT):</label>
-        <input type="text" id="pais" name="pais" required>
+        <label for="pais">País:</label>
+        <select id="pais" name="pais" required>
+            <option value="">Selecione um país...</option>
+            {% for codigo, nome in paises %}
+                <option value="{{ codigo }}" {% if codigo == pais_selecionado %}selected{% endif %}>{{ nome }}</option>
+            {% endfor %}
+        </select>
 
-        <label for="estado">Sigla do Estado (Opcional, ex: PE, SP):</label>
-        <input type="text" id="estado" name="estado">
+        <label for="estado">Estado (Opcional):</label>
+        <select id="estado" name="estado">
+            <option value="">--</option>
+        </select>
 
         <button type="submit">Calcular</button>
     </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const paisSelect = document.getElementById('pais');
+            const estadoSelect = document.getElementById('estado');
+            
+            // Guarda o estado que foi selecionado na última vez (vindo do Flask)
+            const estadoInicialSelecionado = "{{ estado_selecionado or '' }}";
+
+            // Função para buscar e popular os estados
+            async function atualizarEstados(codigoPais, estadoParaSelecionar) {
+                // Limpa as opções atuais e desabilita o campo
+                estadoSelect.innerHTML = '<option value="">Carregando...</option>';
+                estadoSelect.disabled = true;
+
+                if (!codigoPais) {
+                    estadoSelect.innerHTML = '<option value="">--</option>';
+                    return;
+                }
+
+                try {
+                    // Chama nossa nova API
+                    const response = await fetch(`/api/states/${codigoPais}`);
+                    const estados = await response.json();
+
+                    estadoSelect.innerHTML = '<option value="">(Nenhum)</option>'; // Opção padrão
+
+                    if (estados.length > 0) {
+                        estados.forEach(function(estado) {
+                            const option = new Option(estado, estado);
+                            if (estado === estadoParaSelecionar) {
+                                option.selected = true;
+                            }
+                            estadoSelect.add(option);
+                        });
+                        estadoSelect.disabled = false; // Habilita o campo se houver estados
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar estados:', error);
+                    estadoSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                }
+            }
+
+            // Evento que dispara quando o usuário troca o país
+            paisSelect.addEventListener('change', function() {
+                atualizarEstados(this.value, null); // Ao trocar de país, não pré-seleciona nenhum estado
+            });
+
+            // Executa uma vez no carregamento da página para popular os estados do país já selecionado
+            if (paisSelect.value) {
+                atualizarEstados(paisSelect.value, estadoInicialSelecionado);
+            }
+        });
+    </script>
 </body>
 </html>
