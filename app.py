@@ -89,12 +89,25 @@ def index():
                            paises=paises_disponiveis, 
                            pais_selecionado=ultimo_pais, estado_selecionado=ultimo_estado)
 
-@app.route('/calculate', methods=['POST'])
+@app.route('/calculate', methods=['GET', 'POST'])
 def calculate():
-    """Recebe os dados do formulário, calcula e mostra o resultado."""
-    pais = request.form.get('pais').upper()
-    estado = request.form.get('estado').upper()
+    """
+    Recebe os dados do formulário (POST) ou da URL (GET), 
+    calcula e mostra o resultado.
+    """
+    if request.method == 'POST':
+        # Dados vindos do formulário
+        pais = request.form.get('pais', '').upper()
+        estado = request.form.get('estado', '').upper()
+    else: # GET
+        # Dados vindos dos parâmetros da URL (ex: /calculate?pais=BR&estado=SP)
+        pais = request.args.get('pais', '').upper()
+        estado = request.args.get('estado', '').upper()
 
+    # Validação para garantir que o país foi fornecido
+    if not pais:
+        return render_template('result.html', erro="O parâmetro 'pais' é obrigatório para o cálculo.")
+    
     # Armazena os valores na sessão para a próxima visita
     session['pais'] = pais
     session['estado'] = estado
