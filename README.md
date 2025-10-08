@@ -1,13 +1,16 @@
 # Calculadora de Horas Úteis
 
-Este é um script de linha de comando em Python que calcula o total de horas úteis desde o primeiro dia do mês atual até a data de hoje. Ele é flexível o suficiente para considerar feriados nacionais e estaduais de diversos países.
+Este projeto oferece uma ferramenta para calcular o total de horas úteis desde o primeiro dia do mês atual até a data de hoje, considerando feriados nacionais e estaduais.
+
+Ele está disponível em duas versões:
+1.  **Aplicação Web:** Uma interface amigável que roda no navegador.
+2.  **Script de Linha de Comando:** Para uso direto no terminal.
 
 ## Funcionalidades
 
 - Calcula o total de horas úteis em um intervalo de datas.
 - Desconsidera fins de semana (sábados e domingos).
 - Utiliza a biblioteca `holidays` para identificar feriados automaticamente, incluindo feriados móveis.
-- Aceita parâmetros de linha de comando para especificar o país e o estado, tornando-o adaptável a diferentes localidades.
 
 ---
 
@@ -43,33 +46,43 @@ Siga os passos abaixo para configurar o ambiente e rodar o projeto.
 
 ---
 
-## Como Usar
+## Como Usar (2 Opções)
 
-O script é executado via terminal e aceita os seguintes parâmetros:
+### Opção 1: Executar a Aplicação Web (Recomendado)
 
-- `--pais`: (Obrigatório) O código de duas letras do país (ex: `BR`, `US`, `PT`).
-- `--estado`: (Opcional) A sigla do estado/província para feriados locais (ex: `PE`, `SP`, `CA`).
+Com o ambiente virtual ativado, você pode iniciar o servidor de duas maneiras:
 
-### Exemplos de Uso
+**A. Usando o comando `flask` (padrão):**
 
-*   **Calcular horas úteis para Pernambuco, Brasil:**
-    ```bash
-    python calcula_horas_uteis.py --pais BR --estado PE
-    ```
+```bash
+flask run
+```
 
-*   **Calcular horas úteis considerando apenas feriados nacionais do Brasil:**
-    ```bash
-    python calcula_horas_uteis.py --pais BR
-    ```
+Abra seu navegador e acesse http://127.0.0.1:5000 para usar a calculadora.
 
-*   **Ver as opções de ajuda:**
-    ```bash
-    python calcula_horas_uteis.py --help
-    ```
+### Opção 2: Usar o Script de Linha de Comando
+
+O script `calcula_horas_uteis.py` é executado via terminal e aceita os seguintes parâmetros:
+
+-   `--pais`: (Obrigatório) O código de duas letras do país (ex: `BR`, `US`, `PT`).
+-   `--estado`: (Opcional) A sigla do estado/província para feriados locais (ex: `PE`, `SP`, `CA`).
+
+**Exemplos:**
+
+```bash
+# Calcular horas úteis para Pernambuco, Brasil
+python calcula_horas_uteis.py --pais BR --estado PE
+
+# Calcular horas úteis considerando apenas feriados nacionais do Brasil
+python calcula_horas_uteis.py --pais BR
+
+# Ver as opções de ajuda
+python calcula_horas_uteis.py --help
+```
 
 ---
 
-## Criando um Executável
+## (Avançado) Criando um Executável
 
 Você pode empacotar o script em um único arquivo executável usando o PyInstaller. Isso permite que ele seja executado em máquinas que não possuem Python ou as dependências instaladas.
 
@@ -82,32 +95,3 @@ Você pode empacotar o script em um único arquivo executável usando o PyInstal
 
 2.  **Encontre o executável:**
     O arquivo final estará na pasta `dist/`.
-
----
-
-## Instalando como Ferramenta de Linha de Comando (macOS/Linux)
-
-Para usar o `calcula_horas_uteis` como um comando global no seu terminal, siga estes passos:
-
-1.  **Crie um diretório para executáveis locais (se não existir):**
-    ```bash
-    mkdir -p ~/.local/bin
-    ```
-
-2.  **Mova o executável para esse diretório:**
-    ```bash
-    mv dist/calcula_horas_uteis ~/.local/bin/
-    ```
-
-3.  **Adicione o diretório ao seu PATH:**
-    Abra seu arquivo de configuração do shell (`~/.zshrc`, `~/.bash_profile`, etc.) e adicione a seguinte linha ao final:
-    ```shell
-    export PATH="$HOME/.local/bin:$PATH"
-    ```
-    Reinicie seu terminal ou execute `source ~/.zshrc` para aplicar as alterações.
-
-4.  **Use em qualquer lugar:**
-    Agora você pode chamar o comando de qualquer pasta.
-    ```bash
-    calcula_horas_uteis --pais BR --estado SP
-    ```

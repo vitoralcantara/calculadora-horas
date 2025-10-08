@@ -86,23 +86,18 @@ def index():
     paises_disponiveis.sort(key=lambda item: item[1])
 
     return render_template('index.html', 
-                           paises=paises_disponiveis, 
-                           pais_selecionado=ultimo_pais, estado_selecionado=ultimo_estado)
+                           paises=paises_disponiveis,
+                           pais_selecionado=ultimo_pais,
+                           estado_selecionado=ultimo_estado)
 
-@app.route('/calculate', methods=['GET', 'POST'])
+@app.route('/calculate') # Removido methods=['GET', 'POST'], pois agora é apenas GET
 def calculate():
     """
-    Recebe os dados do formulário (POST) ou da URL (GET), 
-    calcula e mostra o resultado.
+    Recebe os dados da URL (GET), calcula e mostra o resultado.
     """
-    if request.method == 'POST':
-        # Dados vindos do formulário
-        pais = request.form.get('pais', '').upper()
-        estado = request.form.get('estado', '').upper()
-    else: # GET
-        # Dados vindos dos parâmetros da URL (ex: /calculate?pais=BR&estado=SP)
-        pais = request.args.get('pais', '').upper()
-        estado = request.args.get('estado', '').upper()
+    # Dados vindos dos parâmetros da URL (ex: /calculate?pais=BR&estado=SP)
+    pais = request.args.get('pais', '').upper()
+    estado = request.args.get('estado', '').upper()
 
     # Validação para garantir que o país foi fornecido
     if not pais:
