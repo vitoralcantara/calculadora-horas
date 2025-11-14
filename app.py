@@ -14,12 +14,13 @@ app.secret_key = os.urandom(24)
 # --- Lógica de Cálculo (reutilizada do script original) ---
 HORAS_UTEIS_POR_DIA = 8
 
-def calcular_horas_uteis(pais, estado=None):
+def calcular_horas_uteis(pais, estado=None, dias_de_ferias=None):
     """
     Calcula o total de horas úteis usando a biblioteca 'holidays' para mais precisão.
     """
     hoje = datetime.date.today()
     primeiro_dia_do_mes = hoje.replace(day=1)
+    ferias_no_mes = dias_de_ferias or []
     
     # Garante que o estado seja None se for uma string vazia
     if not estado:
@@ -37,9 +38,10 @@ def calcular_horas_uteis(pais, estado=None):
     
     while dia_atual <= hoje:
         e_dia_de_semana = dia_atual.weekday() < 5
+        nao_e_ferias = dia_atual not in ferias_no_mes
         nao_e_feriado = dia_atual not in feriados_locais
         
-        if e_dia_de_semana and nao_e_feriado:
+        if e_dia_de_semana and nao_e_feriado and nao_e_ferias:
             total_horas_uteis += HORAS_UTEIS_POR_DIA
         
         dia_atual += datetime.timedelta(days=1)
@@ -54,6 +56,7 @@ def index():
     # Recupera os últimos valores da sessão, se existirem
     ultimo_pais = session.get('pais', '')
     ultimo_estado = session.get('estado', '')
+    ultimas_ferias = session.get('ferias', '')
 
     # Configura o gettext para buscar as traduções para português do pycountry
     try:
@@ -88,7 +91,8 @@ def index():
     return render_template('index.html', 
                            paises=paises_disponiveis,
                            pais_selecionado=ultimo_pais,
-                           estado_selecionado=ultimo_estado)
+                           estado_selecionado=ultimo_estado,
+                           ferias_selecionadas=ultimas_ferias)
 
 @app.route('/calculate') # Removido methods=['GET', 'POST'], pois agora é apenas GET
 def calculate():
@@ -98,22 +102,36 @@ def calculate():
     # Dados vindos dos parâmetros da URL (ex: /calculate?pais=BR&estado=SP)
     pais = request.args.get('pais', '').upper()
     estado = request.args.get('estado', '').upper()
+    ferias_str = request.args.get('ferias', '')
 
     # Validação para garantir que o país foi fornecido
     if not pais:
         return render_template('result.html', erro="O parâmetro 'pais' é obrigatório para o cálculo.")
     
+    dias_de_ferias = []
+    if ferias_str:
+        try:
+            hoje = datetime.date.today()
+            # Converte a string "10,11,22" em uma lista de objetos date
+            dias_int = [int(dia.strip()) for dia in ferias_str.split(',')]
+            dias_de_ferias = [datetime.date(hoje.year, hoje.month, dia) for dia in dias_int]
+        except (ValueError, TypeError):
+            return render_template('result.html', erro="Formato inválido para dias de férias. Use números separados por vírgula (ex: 10,15,22).")
+
     # Armazena os valores na sessão para a próxima visita
     session['pais'] = pais
     session['estado'] = estado
+    session['ferias'] = ferias_str
 
-    horas, erro = calcular_horas_uteis(pais, estado)
+    horas, erro = calcular_horas_uteis(pais, estado, dias_de_ferias)
 
     localidade = pais
     if estado:
         localidade += f"-{estado}"
 
-    return render_template('result.html', horas=horas, localidade=localidade, erro=erro)
+    return render_template('result.html', 
+                           horas=horas, localidade=localidade, erro=erro, 
+                           dias_ferias=ferias_str)
 
 @app.route('/api/states/<country_code>')
 def get_states(country_code):

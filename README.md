@@ -11,6 +11,7 @@ Ele está disponível em duas versões:
 - Calcula o total de horas úteis em um intervalo de datas.
 - Desconsidera fins de semana (sábados e domingos).
 - Utiliza a biblioteca `holidays` para identificar feriados automaticamente, incluindo feriados móveis.
+- Permite a inserção de dias de férias para serem descontados do cálculo.
 
 ---
 
@@ -66,12 +67,16 @@ O script `calcula_horas_uteis.py` é executado via terminal e aceita os seguinte
 
 -   `--pais`: (Obrigatório) O código de duas letras do país (ex: `BR`, `US`, `PT`).
 -   `--estado`: (Opcional) A sigla do estado/província para feriados locais (ex: `PE`, `SP`, `CA`).
+-   `--ferias`: (Opcional) Uma lista de dias de férias do mês atual, separados por vírgula (ex: `10,15,22`).
 
 **Exemplos:**
 
 ```bash
 # Calcular horas úteis para Pernambuco, Brasil
 python calcula_horas_uteis.py --pais BR --estado PE
+
+# Calcular horas para o Brasil, descontando os dias 10 e 11 como férias
+python calcula_horas_uteis.py --pais BR --ferias 10,11
 
 # Calcular horas úteis considerando apenas feriados nacionais do Brasil
 python calcula_horas_uteis.py --pais BR
