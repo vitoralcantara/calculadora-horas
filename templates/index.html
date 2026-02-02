@@ -12,7 +12,7 @@
 </head>
 <body>
     <h1>Calculadora de Horas Úteis</h1>
-    <p>Calcule o total de horas úteis desde o início do mês atual até hoje.</p>
+    <p>Calcule o total de horas úteis para um mês específico, considerando feriados locais.</p>
     
     <form action="/calculate" method="get">
         <label for="pais">País:</label>
@@ -26,6 +26,24 @@
         <label for="estado">Estado (Opcional):</label>
         <select id="estado" name="estado">
             <option value="">--</option>
+        </select>
+
+        <label for="ano">Ano:</label>
+        <select name="ano" id="ano">
+            {% for ano_opcao in anos %}
+                <option value="{{ ano_opcao }}" {% if ano_opcao == ano_selecionado %}selected{% endif %}>
+                    {{ ano_opcao }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <label for="mes">Mês:</label>
+        <select name="mes" id="mes">
+            {% for mes_opcao in meses %}
+                <option value="{{ mes_opcao }}" {% if mes_opcao == mes_selecionado %}selected{% endif %}>
+                    {{ mes_opcao }}
+                </option>
+            {% endfor %}
         </select>
 
         <label for="ferias">Dias de Férias no Mês (separados por vírgula):</label>

@@ -14,9 +14,9 @@
     {% if erro %}
         <p class="error">{{ erro }}</p>
     {% else %}
-        <p>Desde o início do mês até hoje, tivemos <span class="result">{{ horas }}</span> horas úteis (considerando feriados de {{ localidade }}).</p>
+        <p>Para o período <strong>{{ periodo }}</strong>, o total foi de <span class="result">{{ horas }}</span> horas úteis (considerando feriados de {{ localidade }}).</p>
         {% if dias_ferias %}
-            <p><small>Dias de férias desconsiderados: {{ dias_ferias }}.</small></p>
+            <p><small>Dias de férias desconsiderados no período: {{ dias_ferias }}.</small></p>
         {% endif %}
     {% endif %}
     <a href="/">Calcular novamente</a>

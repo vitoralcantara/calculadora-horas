@@ -1,6 +1,6 @@
 # Calculadora de Horas Úteis
 
-Este projeto oferece uma ferramenta para calcular o total de horas úteis desde o primeiro dia do mês atual até a data de hoje, considerando feriados nacionais e estaduais.
+Este projeto oferece uma ferramenta para calcular o total de horas úteis para um mês específico, considerando feriados nacionais e estaduais.
 
 Ele está disponível em duas versões:
 1.  **Aplicação Web:** Uma interface amigável que roda no navegador.
@@ -8,7 +8,8 @@ Ele está disponível em duas versões:
 
 ## Funcionalidades
 
-- Calcula o total de horas úteis em um intervalo de datas.
+- Calcula o total de horas úteis para um mês e ano específicos.
+- Por padrão (no script de linha de comando), calcula do início do mês atual até o dia corrente.
 - Desconsidera fins de semana (sábados e domingos).
 - Utiliza a biblioteca `holidays` para identificar feriados automaticamente, incluindo feriados móveis.
 - Permite a inserção de dias de férias para serem descontados do cálculo.
@@ -67,19 +68,21 @@ O script `calcula_horas_uteis.py` é executado via terminal e aceita os seguinte
 
 -   `--pais`: (Obrigatório) O código de duas letras do país (ex: `BR`, `US`, `PT`).
 -   `--estado`: (Opcional) A sigla do estado/província para feriados locais (ex: `PE`, `SP`, `CA`).
--   `--ferias`: (Opcional) Uma lista de dias de férias do mês atual, separados por vírgula (ex: `10,15,22`).
+-   `--ano`: (Opcional) O ano para o cálculo. Se omitido, usa o ano atual.
+-   `--mes`: (Opcional) O mês para o cálculo. Se omitido, usa o mês atual.
+-   `--ferias`: (Opcional) Uma lista de dias de férias do mês, separados por vírgula (ex: `10,15,22`).
 
 **Exemplos:**
 
 ```bash
-# Calcular horas úteis para Pernambuco, Brasil
+# Calcular horas úteis para o mês atual em Pernambuco, Brasil (do dia 1 até hoje)
 python calcula_horas_uteis.py --pais BR --estado PE
 
-# Calcular horas para o Brasil, descontando os dias 10 e 11 como férias
-python calcula_horas_uteis.py --pais BR --ferias 10,11
+# Calcular horas para o mês inteiro de Janeiro de 2024 no Brasil
+python calcula_horas_uteis.py --pais BR --ano 2024 --mes 1
 
-# Calcular horas úteis considerando apenas feriados nacionais do Brasil
-python calcula_horas_uteis.py --pais BR
+# Calcular horas para o mês de Março de 2024 na Califórnia (US), descontando os dias 10 e 11 como férias
+python calcula_horas_uteis.py --pais US --estado CA --ano 2024 --mes 3 --ferias 10,11
 
 # Ver as opções de ajuda
 python calcula_horas_uteis.py --help
