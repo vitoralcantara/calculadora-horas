@@ -24,6 +24,7 @@
         </select>
 
         <label for="estado">Estado (Opcional):</label>
+        <button type="button" id="detect-location" style="all: unset; cursor: pointer; color: #007bff; text-decoration: underline; font-size: 0.9em; margin-left: 10px;">Detectar meu estado</button>
         <select id="estado" name="estado">
             <option value="">--</option>
         </select>
@@ -56,23 +57,27 @@
         document.addEventListener('DOMContentLoaded', function() {
             const paisSelect = document.getElementById('pais');
             const estadoSelect = document.getElementById('estado');
+            const detectButton = document.getElementById('detect-location');
             
             // Guarda o estado que foi selecionado na última vez (vindo do Flask)
             const estadoInicialSelecionado = "{{ estado_selecionado or '' }}";
 
             // Função para buscar e popular os estados
             async function atualizarEstados(codigoPais, estadoParaSelecionar) {
-                // Limpa as opções atuais e desabilita o campo
+                // Desabilita os campos durante o carregamento
                 estadoSelect.innerHTML = '<option value="">Carregando...</option>';
                 estadoSelect.disabled = true;
+                detectButton.disabled = true;
 
+                // Se nenhum país for selecionado, limpa e reabilita.
                 if (!codigoPais) {
                     estadoSelect.innerHTML = '<option value="">--</option>';
+                    estadoSelect.disabled = false;
+                    detectButton.disabled = false;
                     return;
                 }
 
                 try {
-                    // Chama nossa nova API
                     const response = await fetch(`/api/states/${codigoPais}`);
                     const estados = await response.json();
 
@@ -80,23 +85,79 @@
 
                     if (estados.length > 0) {
                         estados.forEach(function(estado) {
-                            const option = new Option(estado, estado);
-                            if (estado === estadoParaSelecionar) {
+                            const option = new Option(estado.name, estado.code);
+                            if (estado.code === estadoParaSelecionar) {
                                 option.selected = true;
                             }
                             estadoSelect.add(option);
                         });
-                        estadoSelect.disabled = false; // Habilita o campo se houver estados
                     }
                 } catch (error) {
                     console.error('Erro ao buscar estados:', error);
                     estadoSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                } finally {
+                    // Garante que os campos sejam reabilitados ao final da operação.
+                    estadoSelect.disabled = false;
+                    detectButton.disabled = false;
                 }
             }
 
             // Evento que dispara quando o usuário troca o país
             paisSelect.addEventListener('change', function() {
                 atualizarEstados(this.value, null); // Ao trocar de país, não pré-seleciona nenhum estado
+            });
+
+            // Lógica para o botão de detecção
+            detectButton.addEventListener('click', function() {
+                if (!navigator.geolocation) {
+                    alert('Geolocalização não é suportada pelo seu navegador.');
+                    return;
+                }
+
+                this.textContent = 'Detectando...';
+                this.disabled = true;
+
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    
+                    try {
+                        // Usando a API Nominatim (OpenStreetMap) para geocodificação reversa
+                        const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=pt`);
+                        const geoData = await geoResponse.json();
+
+                        if (geoData && geoData.address) {
+                            const countryCode = geoData.address.country_code?.toUpperCase();
+                            const stateName = geoData.address.state;
+
+                            // Se o país detectado for diferente do selecionado, atualiza tudo
+                            if (countryCode && paisSelect.value !== countryCode) {
+                                paisSelect.value = countryCode;
+                                await atualizarEstados(countryCode, null); // Recarrega os estados
+                            }
+                            
+                            // Tenta encontrar e selecionar o estado pelo nome completo
+                            if (stateName) {
+                                for (let option of estadoSelect.options) {
+                                    if (option.text === stateName) {
+                                        option.selected = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Erro ao detectar a localização:', error);
+                        alert('Não foi possível obter o nome do estado a partir da sua localização.');
+                    } finally {
+                        this.textContent = 'Detectar meu estado';
+                        this.disabled = false;
+                    }
+                }, (error) => {
+                    console.error('Erro de geolocalização:', error);
+                    alert('Não foi possível obter sua localização. Verifique as permissões do navegador.');
+                    this.textContent = 'Detectar meu estado';
+                    this.disabled = false;
+                });
             });
 
             // Executa uma vez no carregamento da página para popular os estados do país já selecionado

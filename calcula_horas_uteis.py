@@ -1,38 +1,8 @@
 # /home/user/calcula_horas_uteis_avancado.py
 import datetime
-import holidays
 import argparse
 import calendar
-
-# --- Configurações ---
-HORAS_UTEIS_POR_DIA = 8
-# --------------------
-
-def calcular_horas_uteis_com_biblioteca(data_inicio, data_fim, pais, estado=None, dias_de_ferias=None):
-    """
-    Calcula o total de horas úteis em um intervalo de datas, considerando feriados.
-    """
-    ferias_no_mes = dias_de_ferias or []
-    
-    # Inicializa o objeto de feriados para o local especificado
-    # Otimiza a busca de feriados para o intervalo de anos necessário
-    anos_necessarios = range(data_inicio.year, data_fim.year + 1)
-    feriados_locais = holidays.CountryHoliday(pais, state=estado, years=anos_necessarios)
-    
-    total_horas_uteis = 0
-    dia_atual = data_inicio
-    
-    while dia_atual <= data_fim:
-        e_dia_de_semana = dia_atual.weekday() < 5
-        nao_e_ferias = dia_atual not in ferias_no_mes
-        nao_e_feriado = dia_atual not in feriados_locais
-        
-        if e_dia_de_semana and nao_e_feriado and nao_e_ferias:
-            total_horas_uteis += HORAS_UTEIS_POR_DIA
-        
-        dia_atual += datetime.timedelta(days=1)
-        
-    return total_horas_uteis
+from core_calculator import calcular_horas_uteis, parse_ferias
 
 def main():
     """
@@ -86,27 +56,9 @@ def main():
             data_fim = hoje
             periodo_str = f"o início do mês até hoje ({data_fim.strftime('%d/%m/%Y')})"
 
-        dias_de_ferias = []
-        if args.ferias:
-            try:
-                dias_int = set()
-                partes = args.ferias.split(',')
-                for parte in partes:
-                    parte = parte.strip()
-                    if not parte: continue
-                    if '-' in parte:
-                        inicio, fim = map(int, parte.split('-'))
-                        if inicio > fim:
-                            raise ValueError("O início do intervalo de férias não pode ser maior que o fim.")
-                        dias_int.update(range(inicio, fim + 1))
-                    else:
-                        dias_int.add(int(parte))
-                dias_de_ferias = [datetime.date(ano_calculo, mes_calculo, dia) for dia in sorted(list(dias_int))]
-            except (ValueError, TypeError):
-                print("Erro: Formato inválido para dias de férias. Use números (ex: 10,15) e/ou intervalos (ex: 20-25).")
-                return
+        dias_de_ferias = parse_ferias(args.ferias, ano_calculo, mes_calculo)
 
-        horas_calculadas = calcular_horas_uteis_com_biblioteca(data_inicio, data_fim, args.pais, args.estado, dias_de_ferias)
+        horas_calculadas = calcular_horas_uteis(data_inicio, data_fim, args.pais, args.estado, dias_de_ferias)
         localidade = args.pais.upper()
         if args.estado:
             localidade += f"-{args.estado.upper()}"
@@ -115,11 +67,8 @@ def main():
         if args.ferias:
             mensagem += f"\nDias de férias desconsiderados no mês {mes_calculo:02d}/{ano_calculo}: {args.ferias}."
         print(mensagem)
-    except ImportError:
-        print("A biblioteca 'holidays' não está instalada.")
-        print("Por favor, instale-a com o comando: pip install holidays")
-    except Exception as e:
-        print(f"Ocorreu um erro: {e}")
+    except (ValueError, NotImplementedError) as e:
+        print(f"Erro: {e}")
 
 if __name__ == "__main__":
     main()
