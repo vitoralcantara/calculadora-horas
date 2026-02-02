@@ -54,7 +54,7 @@ def main():
     parser.add_argument(
         "--ferias",
         default="",
-        help="Opcional: Dias de férias no mês, separados por vírgula (ex: 10,15,22)."
+        help="Opcional: Dias ou intervalos de férias, separados por vírgula (ex: 10,15,20-25)."
     )
     parser.add_argument(
         "--ano",
@@ -89,11 +89,21 @@ def main():
         dias_de_ferias = []
         if args.ferias:
             try:
-                # Converte a string "10,11,22" em uma lista de objetos date
-                dias_int = [int(dia.strip()) for dia in args.ferias.split(',')]
-                dias_de_ferias = [datetime.date(ano_calculo, mes_calculo, dia) for dia in dias_int]
+                dias_int = set()
+                partes = args.ferias.split(',')
+                for parte in partes:
+                    parte = parte.strip()
+                    if not parte: continue
+                    if '-' in parte:
+                        inicio, fim = map(int, parte.split('-'))
+                        if inicio > fim:
+                            raise ValueError("O início do intervalo de férias não pode ser maior que o fim.")
+                        dias_int.update(range(inicio, fim + 1))
+                    else:
+                        dias_int.add(int(parte))
+                dias_de_ferias = [datetime.date(ano_calculo, mes_calculo, dia) for dia in sorted(list(dias_int))]
             except (ValueError, TypeError):
-                print("Erro: Formato inválido para dias de férias. Use números separados por vírgula.")
+                print("Erro: Formato inválido para dias de férias. Use números (ex: 10,15) e/ou intervalos (ex: 20-25).")
                 return
 
         horas_calculadas = calcular_horas_uteis_com_biblioteca(data_inicio, data_fim, args.pais, args.estado, dias_de_ferias)

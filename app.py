@@ -131,12 +131,21 @@ def calculate():
     dias_de_ferias = []
     if ferias_str:
         try:
-            hoje = datetime.date.today()
-            # Converte a string "10,11,22" em uma lista de objetos date
-            dias_int = [int(dia.strip()) for dia in ferias_str.split(',')]
-            dias_de_ferias = [datetime.date(ano, mes, dia) for dia in dias_int]
+            dias_int = set()
+            partes = ferias_str.split(',')
+            for parte in partes:
+                parte = parte.strip()
+                if not parte: continue
+                if '-' in parte:
+                    inicio, fim = map(int, parte.split('-'))
+                    if inicio > fim:
+                        raise ValueError("O início do intervalo de férias não pode ser maior que o fim.")
+                    dias_int.update(range(inicio, fim + 1))
+                else:
+                    dias_int.add(int(parte))
+            dias_de_ferias = [datetime.date(ano, mes, dia) for dia in sorted(list(dias_int))]
         except (ValueError, TypeError):
-            return render_template('result.html', erro="Formato inválido para dias de férias. Use números separados por vírgula (ex: 10,15,22).")
+            return render_template('result.html', erro="Formato inválido para dias de férias. Use números (ex: 10,15) e/ou intervalos (ex: 20-25).")
 
     # Armazena os valores na sessão para a próxima visita
     session['pais'] = pais
