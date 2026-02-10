@@ -43,18 +43,15 @@ def main():
         ano_calculo = args.ano or hoje.year
         mes_calculo = args.mes or hoje.month
 
-        # Define o período de cálculo
-        if args.ano and args.mes:
-            # Calcula para o mês inteiro especificado
-            data_inicio = datetime.date(ano_calculo, mes_calculo, 1)
+        data_inicio = datetime.date(ano_calculo, mes_calculo, 1)
+        
+        if ano_calculo == hoje.year and mes_calculo == hoje.month:
+            data_fim = hoje
+            periodo_str = f"o início do mês até hoje ({data_fim.strftime('%d/%m/%Y')})"
+        else:
             _, ultimo_dia = calendar.monthrange(ano_calculo, mes_calculo)
             data_fim = datetime.date(ano_calculo, mes_calculo, ultimo_dia)
             periodo_str = f"o mês de {mes_calculo:02d}/{ano_calculo}"
-        else:
-            # Comportamento padrão: do início do mês atual até hoje
-            data_inicio = hoje.replace(day=1)
-            data_fim = hoje
-            periodo_str = f"o início do mês até hoje ({data_fim.strftime('%d/%m/%Y')})"
 
         dias_de_ferias = parse_ferias(args.ferias, ano_calculo, mes_calculo)
 

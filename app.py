@@ -91,10 +91,13 @@ def calculate():
     if not pais:
         return render_template('result.html', erro="O parâmetro 'país' é obrigatório para o cálculo.")
     
+    data_inicio = datetime.date(ano, mes, 1)
     try:
-        data_inicio = datetime.date(ano, mes, 1)
-        _, ultimo_dia = calendar.monthrange(ano, mes)
-        data_fim = datetime.date(ano, mes, ultimo_dia)
+        if ano == hoje.year and mes == hoje.month:
+            data_fim = hoje
+        else:
+            _, ultimo_dia = calendar.monthrange(ano, mes)
+            data_fim = datetime.date(ano, mes, ultimo_dia)
 
         dias_de_ferias = parse_ferias(ferias_str, ano, mes)
         horas = core_calcular_horas(data_inicio, data_fim, pais, estado, dias_de_ferias)
